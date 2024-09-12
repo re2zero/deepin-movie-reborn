@@ -38,6 +38,7 @@ using namespace std;
 
 static CompositingManager *_compManager = nullptr;
 bool CompositingManager::m_bCanHwdec = true;
+bool CompositingManager::m_hasMpv = false;
 
 #define C2Q(cs) (QString::fromUtf8((cs).c_str()))
 
@@ -347,11 +348,15 @@ void CompositingManager::setCanHwdec(bool bCanHwdec)
 
 bool CompositingManager::isMpvExists()
 {
-    QDir dir;
-    QString path  = QLibraryInfo::location(QLibraryInfo::LibrariesPath);
-    dir.setPath(path);
-    static QStringList list = dir.entryList(QStringList() << (QString("libmpv.so") + "*"), QDir::NoDotAndDotDot | QDir::Files);
-    return !list.isEmpty();
+    if (m_hasMpv) {
+        // has loaded it.
+        return true;
+    }
+
+    // try to load it.
+    m_hasMpv = SysUtils::libExist("libmpv.so");
+
+    return m_hasMpv;
 }
 
 bool CompositingManager::isZXIntgraphics() const
